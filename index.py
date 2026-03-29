@@ -2,12 +2,14 @@ from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
-# Global state to store your spam info
-state = {"message": "Waiting...", "enabled": False}
-
-@app.route('/')
-def home():
-    return "Bridge is Online."
+# The Master State
+state = {
+    "command": "none", 
+    "message": "",
+    "target_player": "", # Who the alts are attacking
+    "target_alt": "all",  # Which alt should listen ("all" or "Username")
+    "config": {"speed": 16, "jump": 50},
+}
 
 @app.route('/poll', methods=['GET'])
 def poll():
@@ -16,12 +18,8 @@ def poll():
 @app.route('/update', methods=['POST'])
 def update():
     global state
-    data = request.get_json()
-    if data:
-        state["message"] = data.get("message", state["message"])
-        state["enabled"] = data.get("enabled", state["enabled"])
-    return jsonify({"status": "success", "current": state}), 200
+    state.update(request.get_json())
+    return jsonify(state), 200
 
-# Vercel requirements
 def handler(request):
     return app(request)
