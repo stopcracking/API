@@ -37,3 +37,5 @@ def update():
 
 def handler(request):
     return app(request)
+
+app = Flask(__name__)
